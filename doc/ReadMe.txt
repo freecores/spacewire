@@ -154,7 +154,7 @@ Industry info and some Web site could be accessed for a further reference::
     have a heart to contribute to promoting the SpW standard.)
                www.spacewire.co.uk
 
-2)The EADS Astrium GmbH (formed in May 2000 by the merger of Matra Marconi Space (France/UK) and the space division 
+2) The EADS Astrium GmbH (formed in May 2000 by the merger of Matra Marconi Space (France/UK) and the space division 
   of DaimlerChrysler Aerospace (Germany)) is well known as the author of the "Router requirements spec" 
   (Steve Parkes, University of Dundee).
    " ETD-031 'SpaceWire Router Development, Coordination and Validation' was Kicked-Off with Astrium the 2nd
@@ -164,25 +164,25 @@ Industry info and some Web site could be accessed for a further reference::
       gate array.
                www.astrium.eads.net
 
-3)Austrian Aerospace (AAE) has a switch ASIC, the Dynamic Switch Matrix (DSM), built in Atmel.
+3) Austrian Aerospace (AAE) has a switch ASIC, the Dynamic Switch Matrix (DSM), built in Atmel.
    " ESM-006 'SpaceWire Router ASIC development' is an ETD-031 sub-contract with Austrian Aerospace concerning 
      the SpaceWire CODEC VHDL, router FPGA and router ASIC. "
                www.space.at
 
-4)4links derives from University of Dundee is a company that specializes in SpaceWire / IEEE1355 &Ethernet.
+4) 4links derives from University of Dundee is a company that specializes in SpaceWire / IEEE1355 &Ethernet.
    They have some products such as EtherSpaceLink, SpaceWire-cPCI,SpaceWire-PCI,SpaceWire-Cables,and    
    IPs which are relative to these products.    They use Xilinx fpga implement routers with a performance
    well above 200 Mbit/s. 
                www.4links.co.uk/index.htm
 
-5)Webs of Chinese laboratory  of avionics(for space use) say they are developing a SpW network system.
+5) Webs of Chinese laboratory  of avionics(for space use) say they are developing a SpW network system.
                www.spacee.net
 
-6)Atmel offer SMCS332,SMCS Lite,and said their "potential future Standard ASICs & IPs include:SMCS Lite,    
+6) Atmel offer SMCS332,SMCS Lite,and said their "potential future Standard ASICs & IPs include:SMCS Lite,    
   SpaceWire Router(2004),SpaceWire Rx/Tx" in 2002. 
                www.atmel.com
    
-7)STAR-Dundee Ltd is a spin-out company of the University of Dundee set up specifically to support users 
+7) STAR-Dundee Ltd is a spin-out company of the University of Dundee set up specifically to support users 
      of SpaceWire(fund from the Scottish Executive). Dr Steve Parkes was the Managing Director of STAR-Dundee,
      also the author of the SpaceWire standard document. "STAR-Dundee Ltd aims to fill the emerging market
      niche for research and development, debug and support tools for SpaceWire."
@@ -192,7 +192,12 @@ Press Officer: j.m.marra@dundee.ac.uk
 
                www.dundee.ac.uk
 
-8)  :--)  Ask Google for more and fresh news. 
+8) Institute of Microelectronics, Micromechanics and Microoptics
+Hochschule Bremen ,University of Applied Sciences,Germany
+Spacewire interface (IP-Core)  
+      http://www.i3m.hs-bremen.de/internet/structure/elis/
+
+9)  :->  Ask Google for more and fresh news. 
 
 
 

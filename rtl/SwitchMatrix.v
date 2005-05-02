@@ -1,7 +1,7 @@
 //File name=Module=SwitchMatrix  2005-04-10      btltz@mail.china.com    btltz from CASIC  
-//Description:     buffered digital SwitchMatrix  
+//Description:     buffered digital SwitchMatrix  to simplify design, avoid HOL.
 //                 * 16 x 16 switch connecting sixteen 9-bit FIFO I/O ports to 
-//                      sixteen 9-bit output ports with  16 x 16 x ?? = 256 syn buffers. buffered each point
+//                      sixteen 10-bit output ports with  16 x 16 (x depth) = 256 syn buffers. buffered each point
 //Abbreviations: 	 crd  --- credit
 //						 alw  --- allow
 //Origin:  SpaceWire Std - Draft-1(Clause 8)of ECSS(European Cooperation for Space Standardization),ESTEC,ESA.
@@ -9,10 +9,11 @@
 //TODO:	  make rtl faster
 ////////////////////////////////////////////////////////////////////////////////////
 //
-/*synthesis translate off*/
-`timescale 1ns/100ps
-/*synthesis translate on */
+/*synthesis translate_off*/
+`include "timescale.v"
+/*synthesis translate_on */
 `define reset  1	        // WISHBONE standard reset
+`define TOOL_NOTSUP_PORT_ARRAY //if the tool's support port array declaration  
 										 
 module SwitchMatrix #(parameter BW=10, PORTNUM=16, AW=4,  // (1byte + 1)Byte-WIDTH 16x16 crossbar swith
                                 CellDepth =255,           // 16x16 beffers x (255Byte x 10-bit / Cell) 
@@ -20,34 +21,65 @@ module SwitchMatrix #(parameter BW=10, PORTNUM=16, AW=4,  // (1byte + 1)Byte-WID
 										           (CellDepth ==511 ? 9  :
 													   (CellDepth == 1023 ? 10 : 'bx  )) ),
 										  WIDTH_CRD = (CellDepth ==255 && PORTNUM ==16) ? 12 :  //255depth x16ports = 4080 Bbytes/column
-						    							  ((CellDepth ==511 && PORTNUM ==16) ? 13 : //511depth x 16ports = 8176	Bbytes/column
-															((CellDepth == 1023 && PORTNUM == 16) ? 14 :
-                                            ((CellDepth ==255 && PORTNUM ==8) ? 11 :
-														   ((CellDepth ==511 && PORTNUM ==8) ? 12 :
-															 ((CellDepth ==1023 && PORTNUM ==8) ? 13 :'bx )))))
+						    							   (CellDepth ==511 && PORTNUM ==16 ? 13 : //511depth x 16ports = 8176	Bbytes/column
+															 (CellDepth == 1023 && PORTNUM == 16 ? 14 :
+                                            (CellDepth ==255 && PORTNUM ==8 ? 11 :
+														   (CellDepth ==511 && PORTNUM ==8 ? 12 :
+															 (CellDepth ==1023 && PORTNUM ==8 ? 13 :'bx )))))
 							 ) 						
 		( // Byte width data input(output) from(to) FIFO
+		                  `ifdef TOOL_NOTSUP_PORT_ARRAY 
+								 output [BW-1:0] do0,do1,do2,do3,do4,do5,do6,do7,
+								                 do8,do9,do10,do11,d12,do13,do14,do15,
+                         input  [BW-1:0] di0,di1,di2,di3,di4,di5,di6,di7,
+								                 di8,di9,di10,di11,di12,di13,di14,di15,
+                         `else
 							    output reg [BW-1:0] do [0:PORTNUM-1],
-							    input  [BW-1:0] di [0:PORTNUM-1],
+							    input  [BW-1:0] di [0:PORTNUM-1],								 
+								`endif
 								 
 								 output [PORTNUM-1:0] PHasData_o,   //a output port has data to transmit
-					// Configuration Port
+		 // Configuration Port
 		                  //output [WIDTH_CRD-1:0] crd_o [0:PORTNUM-1], // credit output back to each in line
-		                   output reg [PORTNUM-1:0]	sop_ack_o,       //level
+		                   output reg [PORTNUM-1:0] sop_ack_o,       //level
 								 input [PORTNUM-1:0] sop_req_i,       //pulse 								
-								 input [PORTNUM-1:0]	eop_i,		     //pulse	 		   				
-								 input [AW-1:0] out_addr_i [0:PORTNUM],	//select output column 
+								 input [PORTNUM-1:0]	eop_i,		     //pulse
+								`ifdef TOOL_NOTSUP_PORT_ARRAY 
+								 input cfg_data0_i,  cfg_data1_i,  cfg_data2_i,  cfg_data3_i,
+										 cfg_data4_i,  cfg_data5_i,  cfg_data6_i,  cfg_data7_i,
+										 cfg_data8_i,  cfg_data9_i,  cfg_data10_i, cfg_data11_i,
+										 cfg_data12_i, cfg_data13_i, cfg_data14_i, cfg_data15_i,
+                        `else
+								 input [PORTNUM-1:0] cfg_data_i [0:PORTNUM-1],
+                        `endif
+
+								`ifdef TOOL_NOTSUP_PORT_ARRAY	 	
+								 input [AW-1:0] out_addr0_i,out_addr1_i,out_addr2_i,out_addr3_i,
+								                out_addr4_i,out_addr5_i,out_addr6_i,out_addr7_i,
+													 out_addr8_i,out_addr9_i,out_addr10_i,out_addr11_i,
+													 out_addr12_i,out_addr13_i,out_addr14_i,out_addr15_i,
+								`else					 	   				
+								 input [AW-1:0] out_addr_i [0:PORTNUM],	//select output column								 
+								`endif
 							    //input [PORTNUM-1:0] ld_inaddr_i, ld_outaddr_i,
-        //System interface
+       // System interface
 								 input reset, gclk
-							  );
+							  );	
+							      parameter True  = 1;
+							      parameter False = 0;
 
-parameter True  = 1;
-parameter False = 0;
-
-// unsuported ports array declaration
-input [BW-1:0] do [0:PORTNUM-1];
-wire [BW-1:0] di [0:PORTNUM-1];
+`ifdef TOOL_NOTSUP_PORT_ARRAY
+reg [BW-1:0] do [0:PORTNUM-1];
+wire [BW-1:0] di [0:PORTNUM-1];	 
+assign di0 = di[0],   di1 = di[1],   di2 = di[2],   di3 = di[3], 
+       di4 = di[4],   di5 = di[5],   di6 = di[6],   di7 = di[7],
+		 di8 = di[9],   di9 = di[9],   di10 = di[10], di11 = di[11],
+		 di12 = di[12], di13 = di[13], di14 = di[14], di15 = di[15];
+assign do0 = do[0],   do1 = do[1],   do2 = do[2],   do3 = do[3], 
+       do4 = do[4],   do5 = do[5],   do6 = do[6],   do7 = do[7],
+		 do8 = do[9],   do9 = do[9],   do10 = do[10], do11 = do[11],
+		 do12 = do[12], do13 = do[13], do14 = do[14], do15 = do[15];
+`endif
 
 // Register to provide address when write(read) line(column).
 // Each output port = 1 column
@@ -56,7 +88,7 @@ reg [AW-1:0] SelColine [0:PORTNUM-1];	     // for MUXes	 select lines in a colum
 wire [PORTNUM-1:0] ld_SelColumn = sop_req_i;            
 wire [PORTNUM-1:0] ld_SelColine;             // load select lines in a column
 
-wire [AW1:0] ScheOut;  //output from the schedule.Determine which line in a column has priority 
+wire [AW-1:0] ScheOut;  //output from the schedule.Determine which line in a column has priority 
 
 							  //opposite line| each column
 wire [BW-1:0] CellOut    [0:PORTNUM]    [0:PORTNUM];	 //16x16 *9 from cell fifo to MUXes	                      
@@ -64,14 +96,14 @@ wire [WCCNT-1:0] CellCnt [0:PORTNUM]    [0:PORTNUM];  //data num(vectors) in eac
 // Cell Control Lines
 reg [PORTNUM-1:0] wr_en  [0:PORTNUM-1];
 reg [PORTNUM-1:0] rd_en  [0:PORTNUM-1];
-wire [PORTNUM-1:0] clrCell[0:PORTNUM]; 
-wire [PORTNUM-1:0] CellEmpty [0:PORTNUM];
-wire [PORTNUM-1:0] CellFull  [0:PORTNUM];	
-wire [PORTNUM-1:0] CellAfull  [0:PORTNUM];                    // buffer cell almost full 
-wire [PORTNUM-1:0] CellAempty  [0:PORTNUM];						  // buffer cell almost empty
+wire [PORTNUM-1:0] clrCell[0:PORTNUM-1]; 
+wire [PORTNUM-1:0] CellEmpty [0:PORTNUM-1];
+wire [PORTNUM-1:0] CellFull  [0:PORTNUM-1];	
+wire [PORTNUM-1:0] CellAfull  [0:PORTNUM-1];                    // buffer cell almost full 
+wire [PORTNUM-1:0] CellAempty  [0:PORTNUM-1];						  // buffer cell almost empty
 
-wire [PORTNUM-1:0] CellHasData [0:PORTNUM] = ~CellEmpty;      //? is the syntax right ?	
-wire [PORTNUM-1:0] CellHasSpc  [0:PORTNUM] = ~CellFull;  
+wire [PORTNUM-1:0] CellHasData [0:PORTNUM-1] = ~CellEmpty;      //? is the syntax right ?	
+wire [PORTNUM-1:0] CellHasSpc  [0:PORTNUM-1] = ~CellFull;  
 
 
 // signal for Matrix Output management
@@ -206,19 +238,21 @@ integer m;
 	// cellHasData[m][0] || cellHasData[m][1] || ...|| cellHasData[m][15] 	  					
 end
 
+
 //////////////////////////////
-// 16 Output column Schedulers 
+// 16 outputs Column Schedulers 
 //
 //////////////////////////////
 // 1 scheduler is responsible to 32 cell in a column
 
 generate
-begin:GEN_Schedulers
+begin:GEN_CSers
+genvar i, k;
  for (i=0; i<PORTNUM; i=i+1)       // i : each column
- begin
+ begin:inst_column
    for (k=0; k<PORTNUM; k=k+1)	  // k : in a column(sel line)
-	begin
-     CSer  #()  inst_CSer
+	begin:inst_line
+     CSer    inst_CSer
 	             ( .ld_SelCoLine_o( ld_SelColine ),
 					   .empty_i(CellEmpty[i][k] ),      // one-hot input
 						.Aempty_i(CellAfull[i][k]),		// one-hot
@@ -278,3 +312,4 @@ endfunction	*/
 endmodule
 
 `undef reset
+`undef TOOL_NOTSUP_PORT_ARRAY
