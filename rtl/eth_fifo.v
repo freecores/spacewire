@@ -41,9 +41,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.5  2005/04/13 20:32           btltz
-// expand depth for use. change to asychronous read. output comment. delete all delay
-// use Xilinx block dpRAM template style. not use clear.
+// Revision 1.5  2005/04/26   14:55           btltz
+// Major change is on assignment of "cnt". Add "read_alw"	and "write_alw".
+// minors: expand depth for use. change to asychronous read. output comment. Use Xilinx block dpRAM template style. not use clear.
 //
 // Revision 1.4  2005/02/21 12:48:07  igorm
 // Warning fixes.
@@ -68,22 +68,33 @@
 `define XIL_BRAM	    //Use Xilinx block RAM
 //`define XIL_DISRAM	 //Use Xilinx distributed RAM
 `define reset   1     //WISHBONE style reset
+`define SIMULATION
 
 module eth_fifo (data_in, data_out, clk, reset, write, read, almost_full, full, almost_empty, empty, cnt);
 
-parameter DATA_WIDTH    = 32;
-parameter DEPTH         = 511;
-parameter CNT_WIDTH     = (DEPTH <= 7) ?  3 :
-                          ((DEPTH <= 15) ? 4 :
-									 ((DEPTH <= 31) ? 5 :
-									  ((DEPTH <= 63) ? 6 :
-									   ((DEPTH <= 127) ? 7 :
-										 ((DEPTH <= 255) ? 8 :
-										  ((DEPTH <= 511) ? 9 :
-										   ((DEPTH <= 1023) ? 10 :
-											 ((DEPTH <= 2047) ? 11 :
-											  ((DEPTH <= 4095) ? 12 : 'bx   // Add more ?
+parameter DATA_WIDTH    = 32;	
+`ifdef SIMULATION 
+parameter DEPTH         = 16;	 
+`else
+parameter DEPTH         = 64;
+`endif	
+parameter CNT_WIDTH     = (DEPTH < 8) ?  3 :
+                          ((DEPTH < 16) ?  4 :
+									 ((DEPTH < 32) ?  5 :
+									  ((DEPTH < 64) ?  6 :
+									   ((DEPTH < 128) ?  7 :
+										 ((DEPTH < 256) ?  8 :
+										  ((DEPTH < 512) ?   9 :
+										   ((DEPTH < 1024) ?  10 :
+											 ((DEPTH < 2048) ?   11 :
+											  ((DEPTH < 4096) ?    12 : 'bx   // Add more ?
 											   )))))))));
+
+parameter WP_WIDTH = ( DEPTH==8 || DEPTH==16 || DEPTH==32 || DEPTH==64 || DEPTH==128 ||
+                       DEPTH==256 || DEPTH==512 || DEPTH==1024 || DEPTH==2048 || DEPTH==4096 
+							 )	  ?   (CNT_WIDTH-1)   :   CNT_WIDTH;
+
+parameter RP_WIDTH = WP_WIDTH;
 
 //parameter Tp            = 1;
 
@@ -110,21 +121,26 @@ output  [CNT_WIDTH-1:0]   cnt;
   `endif
 `endif
 
-reg     [CNT_WIDTH-1:0]   cnt;
-reg     [CNT_WIDTH-1:0]   read_pointer;
-reg     [CNT_WIDTH-1:0]   write_pointer;
+reg     [CNT_WIDTH-1:0]   cnt;	       // eg: 0-1--16			// eg: 0-1--24
+reg     [RP_WIDTH-1:0]    read_pointer; // eg: 0-15				// eg: 0-23
+reg     [WP_WIDTH-1:0]    write_pointer;// eg: 0-15				// eg: 0-23
 
+wire read_alw = read && !empty;
+wire write_alw = write &&  !full;  
 
 always @ (posedge clk or posedge reset)
 begin
   if(reset)
     cnt <= 0;
-  else
-  if(read ^ write)
-    if(read)
-      cnt <= cnt - 1'b1;
-    else
-      cnt <= cnt + 1'b1;
+  else if(read ^ write)
+       begin
+		 if( read_alw )
+		  cnt <= cnt - 1'b1;
+       else if(write_alw) 
+        cnt <= cnt + 1'b1;
+		 end
+  else if(write && empty)  // (read && write) when empty
+        cnt<= cnt + 1'b1; 
 end
 
 always @ (posedge clk or posedge reset)
@@ -132,24 +148,35 @@ begin
   if(reset)
     read_pointer <= 0;
   else
-  if(read & ~empty)
+  if(read_alw) //      
+    begin
+	 if( read_pointer==DEPTH-1 )    // to support arbitrary depth
+	 read_pointer <= 0;
+	 else
     read_pointer <= read_pointer + 1'b1;
+	 end
 end
 
 always @ (posedge clk or posedge reset)
 begin
   if(reset)
-    write_pointer <= 0;
+    write_pointer <= 1;		       // ignor bit0 at the very beginning
   else
-  if(write & ~full)
-    write_pointer <= write_pointer + 1'b1;
+  if(write_alw )
+    begin
+    if( write_pointer==DEPTH-1 )	 // to support arbitrary depth
+	 write_pointer <= 0;
+	 else
+	 write_pointer <= write_pointer + 1'b1;
+	 end
 end
 
 // UNregistered outputs. assert while clk after low->high + gate latency
 assign empty = ~(|cnt);			     
-assign almost_empty = cnt == 1;		       //pulse output
-assign full  = cnt == DEPTH;
-assign almost_full  = &cnt[CNT_WIDTH-2:0]; //pulse output
+assign almost_empty = cnt == 1;		         //pulse output
+assign full = ( cnt == DEPTH-1);		         // ignor 1 word to make right wr/rd on dprem
+//assign almost_full  = &cnt[CNT_WIDTH-2:0]; //pulse output
+assign almost_full = (cnt == DEPTH-2);
 
 
 
@@ -176,7 +203,7 @@ assign almost_full  = &cnt[CNT_WIDTH-2:0]; //pulse output
 `else   // !ETH_ALTERA_ALTSYNCRAM
 
 `ifdef XIL_BRAM
-reg [CNT_WIDTH-1:0]  rp1;
+reg [RP_WIDTH-1:0]  rp1;
  always @ (posedge clk) begin 
   if(write & ~full)
       dpRam[write_pointer] <= data_in;
@@ -200,3 +227,4 @@ endmodule
 
 `undef reset
 `undef XIL_BRAM
+`undef SIMULATION
