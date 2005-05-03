@@ -1,32 +1,51 @@
+
+///////////////////////////////////////////////////////////////
+
 SpaceWire (SpW) for What?
-     "Spw grown organically from the needs of on-board processing applications.
-      (SpW is a network with Routers)
-      This Standard addresses the handling of payload data and control information on
-board a spacecraft. It is a standard for a high speed data link, which is intended
-to meet the needs of future, high capability, remote sensing instruments and
-other space missions...
-      Processing units, mass-memory units and down-link telemetry systems devel-
-oped for one mission can be readily used on another mission, reducing the cost of
-development, improving reliability and most importantly increasing the amount
-of scientific work that can be achieved within a limited budget.
-      (SpW is currently being installed on several NASA and European Space Agency (ESA) 
-       spaceships to support onboard communications during space missions.---27 January 2003)
-      SpaceWire has taken into consideration two existing standards, IEEE 1355-1995
-and ANSI/TIA/EIA-644.
-      "Point-to-point serial links with LVDS. The maximum data signalling rate that can be 
-achieved is different from one system to another, depending on several factors such as:
-1)cable length, 2)driver-receiver technology, and 3)encoder-decoder design, and is limited by 4)skew and jitter."
+"Spw grown organically from the needs of on-board 
+processing applications.
+
+SpW is a network with Routers.
+
+This Standard addresses the handling of payload data and control
+information on board a spacecraft. It is a standard for a high 
+speed data link, which is intended to meet the needs of future, 
+high capability, remote sensing instruments and other space missions.
+
+Processing units, mass-memory units and down-link telemetry 
+systems developed for one mission can be readily used on another 
+mission, reducing the cost of development, improving reliability 
+and most importantly increasing the amount of scientific work that 
+can be achieved within a limited budget.
+
+SpW is currently being installed on several NASA and European Space 
+Agency (ESA) spaceships to support onboard communications during 
+space missions.---27 January 2003)
+
+SpaceWire has taken into consideration two existing standards, 
+IEEE 1355-1995 and ANSI/TIA/EIA-644.
+
+"Point-to-point serial links with LVDS. The maximum data signalling 
+rate that can be achieved is different from one system to another, 
+depending on several factors such as: 1)cable length, 2)driver-receiver 
+technology, and 3)encoder-decoder design, and is limited by 4)skew and 
+jitter."
 
 
 
 
 
 
-Diff & Relation  with IEE1355 device(eg. Atmel.Inc "TSS901E" which also called "SMCS332")
-"The SMCS devices implement revision A of the standard, which is based on IEEE1355. They do not implement 
-the current version of SpaceWire. However, the current version of SpaceWire is backwards compatible with the earlier revision."
+Diff & Relation  with IEE1355 device(eg. Atmel.Inc "TSS901E" which 
+also called "SMCS332")
 
-//////////////////////////////////////////////////////////////////////////////////////
+"The SMCS devices implement revision A of the standard, which is 
+based on IEEE1355. They do not implement the current version of 
+SpaceWire. 
+However, the current version of SpaceWire is backwards compatible with 
+the earlier revision."
+
+/////////////////////////////////////////////////////////////////
 
 
 
@@ -36,7 +55,7 @@ This Core?
   - CODEC
     -  A pure synchronous design(so it can works well in fpga) written in verilog, completely open.
     -  Annother high speed CODEC use PLL and clock recovery/lock circuit.
-  -SWR
+    -  SWR
     -  ...Synchronously Clocked Crosspoint...(Switch Latency...)
     -  ... buffered crossbar...distributed scheduling(effective and simple). 16x16 now may be enough.
 
@@ -83,10 +102,6 @@ A little specs:
      All routing function is performed by Routers.   
 
 
-
-
-
-
 -ROUTER
    - bufferd switch
    - ... minimum switching latency and lowest propagation delay ...
@@ -94,9 +109,14 @@ A little specs:
    -  ...operate directly on variable-size packets,...no packet 
      segmentation and no scheduler(distributed scheduling decisions)
    - "sop_ack_o" is a sychrnous acknowledge signal indicate that the cell which a package want to      be loaded has space to load. If it's true, after 1 clock, the controller will load data to      that cell. 
-   
+   - Note if the buffer has data, the data emerges on the data output port currently is not valid. You need to read it (by a synchronous pulse) then the valid data occurs! The buffer is Revision 1.5 of "eth_fifo" which originally written by Igor Mohor(from SI). 
+
+
 
 *********************************************************
+- Function limitations:
+  -
+  - 
 - +Conformity Limitations:
   |-- Link Interfaces --+
   |                     |-
@@ -117,7 +137,7 @@ TODO:   the "Router" and various interface to other bus.
 
 
 Some interesting topics:
-1)Open or close?
+1) Open or close?
 In the "SpaceWire Router Requirements Specification(Issue:1 Rev: 5 Date:28.02.2003)" clause 4.1 has some words about 
 this question:
 "Open VHDL Core
@@ -125,9 +145,10 @@ The SpaceWire input/output ports shall be implemented with the Open VHDL core de
 Rationale: It will minimise design effort and help to validate the VHDL core."
 It did not refer to open the Router's IP,besides i have not found free "IO ports" core available on internet.
 
-2)Active things:(observe at 03-26-2005)
-  If someone has deep interest,you could pay attention to a conference "DASIA(DAta Systems In Aerospace) 2005" in 
-  Sheraton Grand Hotel, Edinburgh, Scotland during 30th May and 2nd June 2005.
+2) Georgia Institute of Technology introduced DX-Gt, a crossbar switch generator(generate Verilog code) for dynamic memory management in multiprocessor SoC in about 2003.
+
+3) Active things:(observe at 03-26-2005)
+   If someone has deep interest,you could pay attention to a conference "DASIA(DAta Systems In Aerospace) 2005"    in Sheraton Grand Hotel, Edinburgh, Scotland during 30th May and 2nd June 2005.
 
     Tuesday 31st May 2005(SESSION 4B ON BOARD BUSES AND COMMUNICATION)
     [Chairperson: P. Plancke, ESA/ESTEC, The Netherlands]
@@ -149,55 +170,52 @@ Annex  A:
 Industry info and some Web site could be accessed for a further reference::
 
 1) "SpaceWire UK are specialist providers of VHDL Intellectual Property & Design Services for the Space Industry".
-    The SpaceWire UK has developed a CODEC and SpaceWire Switch Core (Router)  in VHDL for business. (I am sure i 
-    don't want to disturb this new ip vendor and I also had consulted their ip schemes.My try is just a hobby and
-    have a heart to contribute to promoting the SpW standard.)
-               www.spacewire.co.uk
+    The SpaceWire UK has developed a CODEC and SpaceWire Switch Core (Router)  in VHDL for business. (I am sure i don't want to disturb this new ip vendor and I also had consulted their ip schemes.My try is just a hobby and want to contribute to promoting the SpW standard.)
+              http://www.spacewire.co.uk
 
-2) The EADS Astrium GmbH (formed in May 2000 by the merger of Matra Marconi Space (France/UK) and the space division 
-  of DaimlerChrysler Aerospace (Germany)) is well known as the author of the "Router requirements spec" 
-  (Steve Parkes, University of Dundee).
+2) DSI GmbH is a German company which offers "SLI-Core", a VHDL CODEC Core for the SpaceWire Link Interface in    June, 2004. Their English WEBs is preparing(observed in April,2005).
+              http://www.dsi-it.de
+
+3) The EADS Astrium GmbH (formed in May 2000 by the merger of Matra Marconi Space (France/UK) and the space      division of DaimlerChrysler Aerospace (Germany)) is well known as the author of the "Router requirements        spec" (Steve Parkes, University of Dundee).
    " ETD-031 'SpaceWire Router Development, Coordination and Validation' was Kicked-Off with Astrium the 2nd
      January 2002. " And the issue 1 rev 5 had been published on 28.02.2003.
      They described a router ASIC with internal configuration port,external pins for status/error monitoring
      (with status/error registers and control registers) in Feb,2004.It had been implemented in an Atmel MH1RT 
       gate array.
-               www.astrium.eads.net
+               http://www.astrium.eads.net
 
-3) Austrian Aerospace (AAE) has a switch ASIC, the Dynamic Switch Matrix (DSM), built in Atmel.
+4) Austrian Aerospace (AAE) has a switch ASIC, the Dynamic Switch Matrix (DSM), built in Atmel.
    " ESM-006 'SpaceWire Router ASIC development' is an ETD-031 sub-contract with Austrian Aerospace concerning 
      the SpaceWire CODEC VHDL, router FPGA and router ASIC. "
-               www.space.at
+               http://www.space.at
 
-4) 4links derives from University of Dundee is a company that specializes in SpaceWire / IEEE1355 &Ethernet.
+5) 4links derives from University of Dundee is a company that specializes in SpaceWire / IEEE1355 &Ethernet.
    They have some products such as EtherSpaceLink, SpaceWire-cPCI,SpaceWire-PCI,SpaceWire-Cables,and    
    IPs which are relative to these products.    They use Xilinx fpga implement routers with a performance
    well above 200 Mbit/s. 
-               www.4links.co.uk/index.htm
+               http://www.4links.co.uk/index.htm
 
-5) Webs of Chinese laboratory  of avionics(for space use) say they are developing a SpW network system.
-               www.spacee.net
+6) Webs of Chinese laboratory  of avionics(for space use) say they are developing a SpW network system.
+               http://www.spacee.net
 
-6) Atmel offer SMCS332,SMCS Lite,and said their "potential future Standard ASICs & IPs include:SMCS Lite,    
+7) Atmel offer SMCS332,SMCS Lite,and said their "potential future Standard ASICs & IPs include:SMCS Lite,    
   SpaceWire Router(2004),SpaceWire Rx/Tx" in 2002. 
-               www.atmel.com
+               http://www.atmel.com
    
-7) STAR-Dundee Ltd is a spin-out company of the University of Dundee set up specifically to support users 
+8) STAR-Dundee Ltd is a spin-out company of the University of Dundee set up specifically to support users 
      of SpaceWire(fund from the Scottish Executive). Dr Steve Parkes was the Managing Director of STAR-Dundee,
      also the author of the SpaceWire standard document. "STAR-Dundee Ltd aims to fill the emerging market
      niche for research and development, debug and support tools for SpaceWire."
+     But now STAR-Dundee Ltd offers many products like SpaceWire CompactPCI board,SpaceWire Router-USB for           business. A few data sheets were published in March 24th,2005.
 
 Dr Steve Parkes: sparkes@computing.dundee.ac.uk
 Press Officer: j.m.marra@dundee.ac.uk
 
-               www.dundee.ac.uk
+           http://star-dundee.com/  
+           http://www.dundee.ac.uk
+               
 
-8) Institute of Microelectronics, Micromechanics and Microoptics
-Hochschule Bremen ,University of Applied Sciences,Germany
-Spacewire interface (IP-Core)  
-      http://www.i3m.hs-bremen.de/internet/structure/elis/
-
-9)  :->  Ask Google for more and fresh news. 
+9)  :--)  Ask Google for more and fresh news. 
 
 
 
