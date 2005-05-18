@@ -1,4 +1,4 @@
-/*file name: synfifo.v    module:synfifo     2004-09-17pm     $btltz  from CASIC    btltz@mail.china.com
+/*file name: synfifo.v    module:synfifo     2004-09-17pm     btltz  from CASIC    btltz@mail.china.com
 --    Description:    a synchronous fifo
 --     Abbreviations:  sinit -- synchronous initial
                        ack -- acknowledging signal
