@@ -69,18 +69,10 @@ module Cfg_Ctrl  #(parameter DW=32,AW=32, IO_PORTNUM=16, CFG_AW=4, IO_DW=10, EXT
 				  parameter  
 
 ////////////////////////////
-// Register(Control, status)
+// Registers(Control, status)
 //
-reg [7:0] gpio;
-reg [7:0] err;
-reg [7:0] err_source;
-reg [7:0] tim_itv;    // timer interval
-reg [9:0] speed [0:IO_PORTNUM];    // to set transmitter speed of each channel individually
-reg [4:0] SWStatus [0:I_PORTNUM];       // switch status
-reg [63:0] LSctrl;
-reg [63:0] CSctrl;
-// Network Management 
-reg RouterID;         // Router Identity Register
+
+`include "RegSWR.v"
 
 ////////////////////////////
 // Command & Reply
