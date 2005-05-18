@@ -1,6 +1,6 @@
 //2005-1-18      btltz@mail.china.com      btltz from CASIC,China  
 //File=Module=SPW_I_vlogcore    2005-2-18      btltz@mail.china.com      btltz from CASIC,China 
-//Description:   SpaceWire RxTx top module with Wishbone interface to node device(the host) or communication mem.    
+//Description:   SpaceWire RxTx top module with Wishbone interface to node device(the host) or communication memory.    
 //                "A SpaceWire node comprise one or more SpaceWire link interfaces
 //                (encoder-decoders) and an interface to the host system,represents an interface between 
 //                a SpaceWire network and an application system using the network services."
@@ -12,9 +12,11 @@
 //
 
 /*synthesis translate off*/
-`timescale 1ns/10ps
+`include "timescale.v"
 /*synthesis translate on */
-`define USE_XIL_DEVICE
+`define reset     1       			 // WISHBONE style reset
+`define USE_XIL_DEVICE	  			 // If use Xilinx device
+`define TOOL_NOTSUP_PORT_ARRAY  //if the tools not support port array declaration 
 
 module SPW_I_vlogcore #(parameter CH_NUM = 3)		                   //Triple Modulo Redundant (TMR)
                       ( output [CH_NUM-1:0] Dout,Doutb, Sout,Soutb,   //LVDS pad
@@ -83,3 +85,8 @@ JTAG_spw  inst_JTAG_IO  ();
 
 
 endmodule
+
+`undef reset
+`undef USE_XIL_DEVICE
+`undef TOOL_NOTSUP_PORT_ARRAY
+
