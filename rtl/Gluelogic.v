@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
 /*synthesis translate off*/
-`timescale 1ns/10ps
+`include "timescale.v"
 /*synthesis translate on */
 //`include "defines.v"
 
