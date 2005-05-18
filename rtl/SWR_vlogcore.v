@@ -8,21 +8,28 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
 //
-/*synthesis translate off*/
+/*synthesis translate_off*/
 `timescale 1ns/10ps
-/*synthesis translate on */
-//`include "defines.v"
-`define reset  1
-module SWR_vlogcore   //#(parameter DW=8,PortNUM=8,EXPortNUM=2)  //there should be sufficient ports
-                ( 
+/*synthesis translate_on */
+`define reset      1	           // WISHBONE style reset
+`define TOOL_NOTSUP_PORT_ARRAY  //if the tools not support port array declaration 
+
+module SWR_vlogcore  #(parameter DW=10, PORTNUM=16)  
+                ( output [PORTNUM-1:0] Do,Dob, So,Sob,           //LVDS pad
+                  input  [PORTNUM-1:0] Si,Sib, Di,Dib,	          //LVDS pad.
                  output reg [3:0] gpio,
 					  input reset, gclk
 					  );
            
 //////////////////
 // Instantiations
-SwitchCore  inst_RoutingMatrix ();
-         //parameterized inst
+SwitchCore  #()  inst_RoutingMatrix (
+                                     );
+
+Cfg_Ctrl   #()  inst_Cfg_Ctrl (
+                               );
+ 
+        
 generate
 begin:IO_PORTS
  genvar i;
@@ -33,6 +40,12 @@ begin:IO_PORTS
 end
 endgenerate  //end Link Interface  1 -> PortNUM
 
+TickCounter  #()  inst_TickCNT (
+                                 );
+
 
 
 endmodule
+
+`undef reset
+`undef TOOL_NOTSUP_PORT_ARRAY
